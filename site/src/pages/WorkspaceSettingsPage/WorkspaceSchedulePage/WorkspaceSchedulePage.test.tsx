@@ -151,7 +151,7 @@ describe("WorkspaceSchedulePage", () => {
 					ttl: 0,
 				},
 				{
-					ttl_ms: null,
+					ttl_ms: undefined,
 				},
 			],
 			[

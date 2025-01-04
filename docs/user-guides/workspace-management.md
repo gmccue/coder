@@ -88,14 +88,7 @@ manually updated the workspace.
 
 ![Automatic Updates](../images/workspace-automatic-updates.png)
 
-## Bulk operations
-
-<blockquote class="info">
-
-Bulk operations are an Enterprise and Premium feature.
-[Learn more](https://coder.com/pricing#compare-plans).
-
-</blockquote>
+## Bulk operations (enterprise) (premium)
 
 Licensed admins may apply bulk operations (update, delete, start, stop) in the
 **Workspaces** tab. Select the workspaces you'd like to modify with the

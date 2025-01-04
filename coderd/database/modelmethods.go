@@ -214,7 +214,6 @@ func (w Workspace) WorkspaceTable() WorkspaceTable {
 		DeletingAt:        w.DeletingAt,
 		AutomaticUpdates:  w.AutomaticUpdates,
 		Favorite:          w.Favorite,
-		NextStartAt:       w.NextStartAt,
 	}
 }
 
@@ -443,7 +442,6 @@ func ConvertWorkspaceRows(rows []GetWorkspacesRow) []Workspace {
 			TemplateDisplayName:     r.TemplateDisplayName,
 			TemplateIcon:            r.TemplateIcon,
 			TemplateDescription:     r.TemplateDescription,
-			NextStartAt:             r.NextStartAt,
 		}
 	}
 

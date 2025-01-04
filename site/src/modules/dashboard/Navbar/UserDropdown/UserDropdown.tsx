@@ -1,15 +1,15 @@
 import { type Interpolation, type Theme, css, useTheme } from "@emotion/react";
 import Badge from "@mui/material/Badge";
 import type * as TypesGen from "api/typesGenerated";
-import { Avatar } from "components/Avatar/Avatar";
 import { DropdownArrow } from "components/DropdownArrow/DropdownArrow";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "components/deprecated/Popover/Popover";
+} from "components/Popover/Popover";
+import { UserAvatar } from "components/UserAvatar/UserAvatar";
 import { type FC, useState } from "react";
-import { navHeight } from "theme/constants";
+import { BUTTON_SM_HEIGHT, navHeight } from "theme/constants";
 import { UserDropdownContent } from "./UserDropdownContent";
 
 export interface UserDropdownProps {
@@ -34,10 +34,10 @@ export const UserDropdown: FC<UserDropdownProps> = ({
 				<button css={styles.button} data-testid="user-dropdown-trigger">
 					<div css={styles.badgeContainer}>
 						<Badge overlap="circular">
-							<Avatar
-								fallback={user.username}
-								src={user.avatar_url}
-								size="lg"
+							<UserAvatar
+								css={styles.avatar}
+								username={user.username}
+								avatarURL={user.avatar_url}
 							/>
 						</Badge>
 						<DropdownArrow
@@ -87,5 +87,11 @@ const styles = {
 		alignItems: "center",
 		minWidth: 0,
 		maxWidth: 300,
+	},
+
+	avatar: {
+		width: BUTTON_SM_HEIGHT,
+		height: BUTTON_SM_HEIGHT,
+		fontSize: 16,
 	},
 } satisfies Record<string, Interpolation<Theme>>;

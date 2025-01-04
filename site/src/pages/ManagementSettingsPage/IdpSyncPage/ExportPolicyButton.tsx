@@ -7,7 +7,7 @@ import type {
 } from "api/typesGenerated";
 import { displayError } from "components/GlobalSnackbar/utils";
 import { saveAs } from "file-saver";
-import { type FC, useState } from "react";
+import { type FC, useMemo, useState } from "react";
 
 interface DownloadPolicyButtonProps {
 	syncSettings: RoleSyncSettings | GroupSyncSettings | undefined;
@@ -24,18 +24,21 @@ export const ExportPolicyButton: FC<DownloadPolicyButtonProps> = ({
 }) => {
 	const [isDownloading, setIsDownloading] = useState(false);
 
-	const canCreatePolicyJson =
-		syncSettings?.field && Object.keys(syncSettings?.mapping).length > 0;
+	const policyJSON = useMemo(() => {
+		return syncSettings?.field && syncSettings.mapping
+			? JSON.stringify(syncSettings, null, 2)
+			: null;
+	}, [syncSettings]);
 
 	return (
 		<Button
 			startIcon={<DownloadOutlined />}
-			disabled={!canCreatePolicyJson || isDownloading}
+			disabled={!policyJSON || isDownloading}
 			onClick={async () => {
-				if (canCreatePolicyJson) {
+				if (policyJSON) {
 					try {
 						setIsDownloading(true);
-						const file = new Blob([JSON.stringify(syncSettings, null, 2)], {
+						const file = new Blob([policyJSON], {
 							type: "application/json",
 						});
 						download(file, `${organization.name}_${type}-policy.json`);
