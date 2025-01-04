@@ -3829,48 +3829,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "produces": [
-                    "application/scim+json"
-                ],
-                "tags": [
-                    "Enterprise"
-                ],
-                "summary": "SCIM 2.0: Replace user account",
-                "operationId": "scim-replace-user-status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Replace user request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/coderd.SCIMUser"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/codersdk.User"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "security": [
                     {
@@ -9168,7 +9126,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "active": {
-                    "description": "Active is a ptr to prevent the empty value from being interpreted as false.",
                     "type": "boolean"
                 },
                 "emails": {
@@ -11212,7 +11169,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "field": {
-                    "description": "Field is the name of the claim field that specifies what groups a user\nshould be in. If empty, no groups will be synced.",
+                    "description": "Field selects the claim field to be used as the created user's\ngroups. If the group field is the empty string, then no group updates\nwill ever come from the OIDC provider.",
                     "type": "string"
                 },
                 "legacy_group_name_mapping": {
@@ -11223,7 +11180,7 @@ const docTemplate = `{
                     }
                 },
                 "mapping": {
-                    "description": "Mapping is a map from OIDC groups to Coder group IDs",
+                    "description": "Mapping maps from an OIDC group --\u003e Coder group ID",
                     "type": "object",
                     "additionalProperties": {
                         "type": "array",
@@ -12937,12 +12894,7 @@ const docTemplate = `{
                 "organization",
                 "oauth2_provider_app",
                 "oauth2_provider_app_secret",
-                "custom_role",
-                "organization_member",
-                "notification_template",
-                "idp_sync_settings_organization",
-                "idp_sync_settings_group",
-                "idp_sync_settings_role"
+                "custom_role"
             ],
             "x-enum-varnames": [
                 "ResourceTypeTemplate",
@@ -12961,12 +12913,7 @@ const docTemplate = `{
                 "ResourceTypeOrganization",
                 "ResourceTypeOAuth2ProviderApp",
                 "ResourceTypeOAuth2ProviderAppSecret",
-                "ResourceTypeCustomRole",
-                "ResourceTypeOrganizationMember",
-                "ResourceTypeNotificationTemplate",
-                "ResourceTypeIdpSyncSettingsOrganization",
-                "ResourceTypeIdpSyncSettingsGroup",
-                "ResourceTypeIdpSyncSettingsRole"
+                "ResourceTypeCustomRole"
             ]
         },
         "codersdk.Response": {
@@ -13027,11 +12974,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "field": {
-                    "description": "Field is the name of the claim field that specifies what organization roles\na user should be given. If empty, no roles will be synced.",
+                    "description": "Field selects the claim field to be used as the created user's\ngroups. If the group field is the empty string, then no group updates\nwill ever come from the OIDC provider.",
                     "type": "string"
                 },
                 "mapping": {
-                    "description": "Mapping is a map from OIDC groups to Coder organization roles.",
+                    "description": "Mapping maps from an OIDC group --\u003e Coder organization role",
                     "type": "object",
                     "additionalProperties": {
                         "type": "array",
@@ -14596,10 +14543,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "next_start_at": {
-                    "type": "string",
-                    "format": "date-time"
-                },
                 "organization_id": {
                     "type": "string",
                     "format": "uuid"
@@ -15078,9 +15021,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "format": "uuid"
-                },
-                "open_in": {
-                    "type": "string"
                 },
                 "sharing_level": {
                     "enum": [

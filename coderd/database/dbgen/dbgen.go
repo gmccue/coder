@@ -260,7 +260,6 @@ func Workspace(t testing.TB, db database.Store, orig database.WorkspaceTable) da
 		AutostartSchedule: orig.AutostartSchedule,
 		Ttl:               orig.Ttl,
 		AutomaticUpdates:  takeFirst(orig.AutomaticUpdates, database.AutomaticUpdatesNever),
-		NextStartAt:       orig.NextStartAt,
 	})
 	require.NoError(t, err, "insert workspace")
 	return workspace
@@ -659,7 +658,6 @@ func WorkspaceApp(t testing.TB, db database.Store, orig database.WorkspaceApp) d
 		Health:               takeFirst(orig.Health, database.WorkspaceAppHealthHealthy),
 		DisplayOrder:         takeFirst(orig.DisplayOrder, 1),
 		Hidden:               orig.Hidden,
-		OpenIn:               takeFirst(orig.OpenIn, database.WorkspaceAppOpenInSlimWindow),
 	})
 	require.NoError(t, err, "insert app")
 	return resource

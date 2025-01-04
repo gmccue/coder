@@ -190,10 +190,7 @@ CREATE TYPE resource_type AS ENUM (
     'custom_role',
     'organization_member',
     'notifications_settings',
-    'notification_template',
-    'idp_sync_settings_organization',
-    'idp_sync_settings_group',
-    'idp_sync_settings_role'
+    'notification_template'
 );
 
 CREATE TYPE startup_script_behavior AS ENUM (
@@ -259,12 +256,6 @@ CREATE TYPE workspace_app_health AS ENUM (
     'initializing',
     'healthy',
     'unhealthy'
-);
-
-CREATE TYPE workspace_app_open_in AS ENUM (
-    'tab',
-    'window',
-    'slim-window'
 );
 
 CREATE TYPE workspace_transition AS ENUM (
@@ -384,25 +375,6 @@ BEGIN
 		IF (SELECT deleted FROM users WHERE id = NEW.user_id LIMIT 1) THEN
 			RAISE EXCEPTION 'Cannot create user_link for deleted user';
 		END IF;
-	END IF;
-	RETURN NEW;
-END;
-$$;
-
-CREATE FUNCTION nullify_next_start_at_on_workspace_autostart_modification() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-BEGIN
-	-- A workspace's next_start_at might be invalidated by the following:
-	--   * The autostart schedule has changed independent to next_start_at
-	--   * The workspace has been marked as dormant
-	IF (NEW.autostart_schedule <> OLD.autostart_schedule AND NEW.next_start_at = OLD.next_start_at)
-		OR (NEW.dormant_at IS NOT NULL AND NEW.next_start_at IS NOT NULL)
-	THEN
-		UPDATE workspaces
-		SET next_start_at = NULL
-		WHERE id = NEW.id;
 	END IF;
 	RETURN NEW;
 END;
@@ -1608,8 +1580,7 @@ CREATE TABLE workspace_apps (
     slug text NOT NULL,
     external boolean DEFAULT false NOT NULL,
     display_order integer DEFAULT 0 NOT NULL,
-    hidden boolean DEFAULT false NOT NULL,
-    open_in workspace_app_open_in DEFAULT 'slim-window'::workspace_app_open_in NOT NULL
+    hidden boolean DEFAULT false NOT NULL
 );
 
 COMMENT ON COLUMN workspace_apps.display_order IS 'Specifies the order in which to display agent app in user interfaces.';
@@ -1760,8 +1731,7 @@ CREATE TABLE workspaces (
     dormant_at timestamp with time zone,
     deleting_at timestamp with time zone,
     automatic_updates automatic_updates DEFAULT 'never'::automatic_updates NOT NULL,
-    favorite boolean DEFAULT false NOT NULL,
-    next_start_at timestamp with time zone
+    favorite boolean DEFAULT false NOT NULL
 );
 
 COMMENT ON COLUMN workspaces.favorite IS 'Favorite is true if the workspace owner has favorited the workspace.';
@@ -1782,7 +1752,6 @@ CREATE VIEW workspaces_expanded AS
     workspaces.deleting_at,
     workspaces.automatic_updates,
     workspaces.favorite,
-    workspaces.next_start_at,
     visible_users.avatar_url AS owner_avatar_url,
     visible_users.username AS owner_username,
     organizations.name AS organization_name,
@@ -2141,13 +2110,9 @@ CREATE INDEX workspace_app_stats_workspace_id_idx ON workspace_app_stats USING b
 
 CREATE INDEX workspace_modules_created_at_idx ON workspace_modules USING btree (created_at);
 
-CREATE INDEX workspace_next_start_at_idx ON workspaces USING btree (next_start_at) WHERE (deleted = false);
-
 CREATE UNIQUE INDEX workspace_proxies_lower_name_idx ON workspace_proxies USING btree (lower(name)) WHERE (deleted = false);
 
 CREATE INDEX workspace_resources_job_id_idx ON workspace_resources USING btree (job_id);
-
-CREATE INDEX workspace_template_id_idx ON workspaces USING btree (template_id) WHERE (deleted = false);
 
 CREATE UNIQUE INDEX workspaces_owner_id_lower_idx ON workspaces USING btree (owner_id, lower((name)::text)) WHERE (deleted = false);
 
@@ -2226,8 +2191,6 @@ CREATE TRIGGER trigger_delete_group_members_on_org_member_delete BEFORE DELETE O
 CREATE TRIGGER trigger_delete_oauth2_provider_app_token AFTER DELETE ON oauth2_provider_app_tokens FOR EACH ROW EXECUTE FUNCTION delete_deleted_oauth2_provider_app_token_api_key();
 
 CREATE TRIGGER trigger_insert_apikeys BEFORE INSERT ON api_keys FOR EACH ROW EXECUTE FUNCTION insert_apikey_fail_if_user_deleted();
-
-CREATE TRIGGER trigger_nullify_next_start_at_on_workspace_autostart_modificati AFTER UPDATE ON workspaces FOR EACH ROW EXECUTE FUNCTION nullify_next_start_at_on_workspace_autostart_modification();
 
 CREATE TRIGGER trigger_update_users AFTER INSERT OR UPDATE ON users FOR EACH ROW WHEN ((new.deleted = true)) EXECUTE FUNCTION delete_deleted_user_resources();
 
