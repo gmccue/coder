@@ -7,7 +7,7 @@ Create a workspace
 ## Usage
 
 ```console
-coder create [flags] [workspace]
+coder create [flags] [name]
 ```
 
 ## Description

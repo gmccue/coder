@@ -327,13 +327,13 @@ func (p *Parser) CoderParameterDefaults(ctx context.Context, varsDefaults map[st
 				// Issue #15795: the "default" value could also be an expression we need
 				// to evaluate.
 				// TODO: should we support coder_parameter default values that reference other coder_parameter data sources?
-				evalCtx := BuildEvalContext(varsDefaults, nil)
+				evalCtx := buildEvalContext(varsDefaults, nil)
 				val, diags := expr.Value(evalCtx)
 				if diags.HasErrors() {
 					return nil, xerrors.Errorf("failed to evaluate coder_parameter %q default value %q: %s", dataResource.Name, value, diags.Error())
 				}
 				// Do not use "val.AsString()" as it can panic
-				strVal, err := CtyValueString(val)
+				strVal, err := ctyValueString(val)
 				if err != nil {
 					return nil, xerrors.Errorf("failed to marshal coder_parameter %q default value %q as string: %s", dataResource.Name, value, err)
 				}
@@ -355,7 +355,7 @@ func evaluateWorkspaceTags(varsDefaults, paramsDefaults, workspaceTags map[strin
 	}
 	// We only add variables and coder_parameter data sources. Anything else will be
 	// undefined and will raise a Terraform error.
-	evalCtx := BuildEvalContext(varsDefaults, paramsDefaults)
+	evalCtx := buildEvalContext(varsDefaults, paramsDefaults)
 	tags := make(map[string]string)
 	for workspaceTagKey, workspaceTagValue := range workspaceTags {
 		expr, diags := hclsyntax.ParseExpression([]byte(workspaceTagValue), "expression.hcl", hcl.InitialPos)
@@ -369,7 +369,7 @@ func evaluateWorkspaceTags(varsDefaults, paramsDefaults, workspaceTags map[strin
 		}
 
 		// Do not use "val.AsString()" as it can panic
-		str, err := CtyValueString(val)
+		str, err := ctyValueString(val)
 		if err != nil {
 			return nil, xerrors.Errorf("failed to marshal workspace tag key %q value %q as string: %s", workspaceTagKey, workspaceTagValue, err)
 		}
@@ -395,17 +395,16 @@ func validWorkspaceTagValues(tags map[string]string) error {
 	return nil
 }
 
-// BuildEvalContext builds an evaluation context for the given variable and parameter defaults.
-func BuildEvalContext(vars map[string]string, params map[string]string) *hcl.EvalContext {
+func buildEvalContext(varDefaults map[string]string, paramDefaults map[string]string) *hcl.EvalContext {
 	varDefaultsM := map[string]cty.Value{}
-	for varName, varDefault := range vars {
+	for varName, varDefault := range varDefaults {
 		varDefaultsM[varName] = cty.MapVal(map[string]cty.Value{
 			"value": cty.StringVal(varDefault),
 		})
 	}
 
 	paramDefaultsM := map[string]cty.Value{}
-	for paramName, paramDefault := range params {
+	for paramName, paramDefault := range paramDefaults {
 		paramDefaultsM[paramName] = cty.MapVal(map[string]cty.Value{
 			"value": cty.StringVal(paramDefault),
 		})
@@ -497,10 +496,7 @@ func compareSourcePos(x, y tfconfig.SourcePos) bool {
 	return x.Line < y.Line
 }
 
-// CtyValueString converts a cty.Value to a string.
-// It supports only primitive types - bool, number, and string.
-// As a special case, it also supports map[string]interface{} with key "value".
-func CtyValueString(val cty.Value) (string, error) {
+func ctyValueString(val cty.Value) (string, error) {
 	switch val.Type() {
 	case cty.Bool:
 		if val.True() {
@@ -518,7 +514,7 @@ func CtyValueString(val cty.Value) (string, error) {
 		if !ok {
 			return "", xerrors.Errorf("map does not have key 'value'")
 		}
-		return CtyValueString(valval)
+		return ctyValueString(valval)
 	default:
 		return "", xerrors.Errorf("only primitive types are supported - bool, number, and string")
 	}

@@ -12,10 +12,11 @@ import (
 )
 
 type GroupSyncSettings struct {
-	// Field is the name of the claim field that specifies what groups a user
-	// should be in. If empty, no groups will be synced.
+	// Field selects the claim field to be used as the created user's
+	// groups. If the group field is the empty string, then no group updates
+	// will ever come from the OIDC provider.
 	Field string `json:"field"`
-	// Mapping is a map from OIDC groups to Coder group IDs
+	// Mapping maps from an OIDC group --> Coder group ID
 	Mapping map[string][]uuid.UUID `json:"mapping"`
 	// RegexFilter is a regular expression that filters the groups returned by
 	// the OIDC provider. Any group not matched by this regex will be ignored.
@@ -61,10 +62,11 @@ func (c *Client) PatchGroupIDPSyncSettings(ctx context.Context, orgID string, re
 }
 
 type RoleSyncSettings struct {
-	// Field is the name of the claim field that specifies what organization roles
-	// a user should be given. If empty, no roles will be synced.
+	// Field selects the claim field to be used as the created user's
+	// groups. If the group field is the empty string, then no group updates
+	// will ever come from the OIDC provider.
 	Field string `json:"field"`
-	// Mapping is a map from OIDC groups to Coder organization roles.
+	// Mapping maps from an OIDC group --> Coder organization role
 	Mapping map[string][]string `json:"mapping"`
 }
 

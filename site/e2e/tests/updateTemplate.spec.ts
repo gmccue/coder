@@ -7,15 +7,9 @@ import {
 	requiresLicense,
 	updateTemplateSettings,
 } from "../helpers";
-import { login } from "../helpers";
 import { beforeCoderTest } from "../hooks";
 
-test.describe.configure({ mode: "parallel" });
-
-test.beforeEach(async ({ page }) => {
-	beforeCoderTest(page);
-	await login(page);
-});
+test.beforeEach(({ page }) => beforeCoderTest(page));
 
 test("template update with new name redirects on successful submit", async ({
 	page,
@@ -30,7 +24,7 @@ test("add and remove a group", async ({ page }) => {
 	requiresLicense();
 
 	const orgName = defaultOrganizationName;
-	const templateName = await createTemplate(page);
+	const templateName = await createTemplate(page, undefined, orgName);
 	const groupName = await createGroup(page);
 
 	await page.goto(

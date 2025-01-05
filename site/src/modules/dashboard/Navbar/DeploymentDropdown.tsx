@@ -7,7 +7,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 	usePopover,
-} from "components/deprecated/Popover/Popover";
+} from "components/Popover/Popover";
 import { linkToAuditing, linkToUsers } from "modules/navigation";
 import type { FC } from "react";
 import { NavLink } from "react-router-dom";

@@ -1017,12 +1017,6 @@ func (s *MethodTestSuite) TestTemplate() {
 			TemplateID: t1.ID,
 		}).Asserts(t1, policy.ActionUpdate)
 	}))
-	s.Run("UpdateWorkspacesTTLByTemplateID", s.Subtest(func(db database.Store, check *expects) {
-		t1 := dbgen.Template(s.T(), db, database.Template{})
-		check.Args(database.UpdateWorkspacesTTLByTemplateIDParams{
-			TemplateID: t1.ID,
-		}).Asserts(t1, policy.ActionUpdate)
-	}))
 	s.Run("UpdateTemplateActiveVersionByID", s.Subtest(func(db database.Store, check *expects) {
 		t1 := dbgen.Template(s.T(), db, database.Template{
 			ActiveVersionID: uuid.New(),
@@ -1915,19 +1909,6 @@ func (s *MethodTestSuite) TestWorkspace() {
 		check.Args(database.UpdateWorkspaceLastUsedAtParams{
 			ID: ws.ID,
 		}).Asserts(ws, policy.ActionUpdate).Returns()
-	}))
-	s.Run("UpdateWorkspaceNextStartAt", s.Subtest(func(db database.Store, check *expects) {
-		ws := dbgen.Workspace(s.T(), db, database.WorkspaceTable{})
-		check.Args(database.UpdateWorkspaceNextStartAtParams{
-			ID:          ws.ID,
-			NextStartAt: sql.NullTime{Valid: true, Time: dbtime.Now()},
-		}).Asserts(ws, policy.ActionUpdate)
-	}))
-	s.Run("BatchUpdateWorkspaceNextStartAt", s.Subtest(func(db database.Store, check *expects) {
-		check.Args(database.BatchUpdateWorkspaceNextStartAtParams{
-			IDs:          []uuid.UUID{uuid.New()},
-			NextStartAts: []time.Time{dbtime.Now()},
-		}).Asserts(rbac.ResourceWorkspace.All(), policy.ActionUpdate)
 	}))
 	s.Run("BatchUpdateWorkspaceLastUsedAt", s.Subtest(func(db database.Store, check *expects) {
 		ws1 := dbgen.Workspace(s.T(), db, database.WorkspaceTable{})
@@ -2827,9 +2808,6 @@ func (s *MethodTestSuite) TestSystemFunctions() {
 	}))
 	s.Run("GetTemplateAverageBuildTime", s.Subtest(func(db database.Store, check *expects) {
 		check.Args(database.GetTemplateAverageBuildTimeParams{}).Asserts(rbac.ResourceSystem, policy.ActionRead)
-	}))
-	s.Run("GetWorkspacesByTemplateID", s.Subtest(func(db database.Store, check *expects) {
-		check.Args(uuid.Nil).Asserts(rbac.ResourceSystem, policy.ActionRead)
 	}))
 	s.Run("GetWorkspacesEligibleForTransition", s.Subtest(func(db database.Store, check *expects) {
 		check.Args(time.Time{}).Asserts()
